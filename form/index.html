@@ -17,13 +17,13 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
 
         body{
             margin: 0;
-            background-color: silver;
+            background-color: slategrey;
             font-family: "Roboto", sans-serif;
             text-align: center;
         }
 
         .form-container{
-            background-color: yellow;
+            background-color: rgb(7, 117, 207);
             max-width: 450px;
             width: 95%;
             margin: auto;
@@ -31,11 +31,11 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
             box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.2);
         }
 
-        input{
+        input, textarea{
             display: block;
             width: 100%;
             margin: 0.5rem 0;
-            padding: 0.4rem 0;
+            padding:  0 0 0.4rem;
             font-size: 1rem;
             outline: none;
             letter-spacing: 0.75px;
@@ -45,9 +45,13 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
             transition: 1s ease;
         }
 
-        input:focus{
-            border-color: violet;
-            border-color: rgb(225, 191, 3);
+        .field{
+            margin: 1rem 0;
+        }
+
+        input:focus, textarea:focus{
+            border-color: black;
+            border-color: rgb(8, 160, 206);
         }
 
         .form-heading{
@@ -58,7 +62,7 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
 
         #submit{
             border: none;
-            background-color: rgb(225, 191, 3);
+            background-color: rgb(7, 6, 2);
             color: wheat;
             text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
             border-radius: 5px;
@@ -81,7 +85,7 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
             font-size: 0.9rem;
             letter-spacing: 0.75px;
             color: rgb(68, 68, 68);
-            transform: translateY(2rem);
+            transform: translateY(1.6rem);
             transition: 0.5s ease;
         }
 
@@ -93,6 +97,14 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
             -webkit-box-shadow: 0 0 1000px #fff inset;
         }
 
+        textarea{
+            overflow: hidden;
+            resize: none;
+            padding-top: 0;
+            height: 3.5rem;
+            padding-left: 0;
+            
+        }
 
 
     </style>
@@ -101,16 +113,20 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
 <body>
     <div class="form-container">
         <h3 class = "form-heading">Форма обратной связи</h3>
-        <form action="https://getsimpleform.com/messages?form_api_token=501dddc86e468f5b15479a20c691d332" method="post">
+        <form id="form">
             <!-- the redirect_to is optional, the form will redirect to the referrer on submission -->
-            <input type='hidden' name='redirect_to' value='https://ktyfujkjdfx.github.io/form/' />
+            <!-- <input type='hidden' name='redirect_to' value='https://www.youtube.com/' /> -->
             <div class="field">
-                <label for="name">Имя</label>
-                <input type="text" id="name" name="name">
+                <label for="name">Имя и фамилия</label>
+                <input type="text" id="name" name="name" required>
             </div>
             <div class="field">   
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="_replyto">
+                <label for="email">Адрес эл.почты</label>
+                <input type="email" id="email" name="_replyto" required>
+            </div>
+            <div class="field">   
+                <label for="message">Сообщение</label>
+                <textarea name="message" id="message" cols="20" rows="3"></textarea>
             </div>
         <input type="submit" id="submit">
         </form>
@@ -131,6 +147,15 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
             }
         });
 
+        var  textarea = document.getElementById("message");
+
+        textarea.addEventListener("focusin", focusInInputHandler);
+        textarea.addEventListener("focusout", focusOutInputHandler);
+        if(textarea.value !==''){
+            focusInInputHandler.call(textarea);
+        }
+
+
         function focusInInputHandler(){
             var label = document.querySelector('label[for = "' + this.id + '"]');
             label.classList.add("focused");
@@ -145,9 +170,51 @@ https://fonts.googleapis.com/css?family=Roboto:300,500&map;subset=cyrillic
             if (this.value == "") {
                 label.classList.remove("focused");
             }
-        
-
         }
+
+        function encode(data){
+            var encodedData =[];
+            for (var key in data){
+                encodedData.push(encodeURIComponent(key) + "=" + encodeURIComponent(data[key]));
+            }      
+            return encodedData.join("&");
+        }
+
+
+        var form = document.getElementById("form");
+
+        form.addEventListener("submit", function(e){
+            //prevent- не допускать
+            e.preventDefault();
+            //console.log("Nothing.....");
+
+            var data = {
+                'name': form.elements[0].value,
+                '_replyto': form.elements[1].value,
+                'message': form.elements[2].value,
+            }
+
+            request = new XMLHttpRequest();
+
+            request.open("POST", "https://formspree.io/f/xvovejez", true);
+
+            request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            request.send(encode(data));
+
+            form.reset();
+
+            inputs.forEach(function(input){
+                if (input.getAttribute("type") !== "submit" && input.getAttribute("type") !=="hidden"){
+                focusOutInputHandler.call(input);
+            }
+        });
+
+        var textarea = document.getElementById("massage");
+
+        focusOutInputHandler.call(textarea);
+
+        });
 
     </script>
 
